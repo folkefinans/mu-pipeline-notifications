@@ -1,0 +1,37 @@
+Resources:
+  PipelineStartedEventRule:
+    Properties:
+      Description:
+        Fn::Sub: Pipeline Started Event Rule for service ${ServiceName}
+      EventPattern:
+        detail:
+          pipeline:
+            - Fn::Sub: ${Namespace}-${ServiceName}
+          state:
+            - STARTED
+        detail-type:
+          - CodePipeline Pipeline Execution State Change
+        source:
+          - aws.codepipeline
+      State: ENABLED
+      Targets:
+        - Arn:
+            Ref: PipelineNotificationTopic
+          Id: StartedTopic
+    Type: AWS::Events::Rule
+
+  PipelineFailedEventRule:
+    Properties:
+      Targets:
+        Fn::Replace:
+          - Arn:
+              Ref: PipelineNotificationTopic
+            Id: FailedTopic
+
+  PipelineSucceededEventRule:
+    Properties:
+      Targets:
+        Fn::Replace:
+          - Arn:
+              Ref: PipelineNotificationTopic
+            Id: SucceededTopic
